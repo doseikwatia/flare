@@ -9,6 +9,8 @@ from flare.analytics.command_control import elasticBeacon
 from flare.tools.utils import bcolors
 import argparse
 import sys
+import time
+from datetime import datetime
 
 
 
@@ -40,6 +42,8 @@ def main():
     parser.add_argument('-html', '--html_out', dest='html_out', default=None, help='Name of HTML File to be written (works best with group)')
     parser.add_argument('-json', '--json_out', dest='json_out', default=None, help='Name of JSON File to be written')
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=True, help='Prints status out to screen (defaults to True)')
+    parser.add_argument('-qs','--query_start', required=False, dest='query_start',default='', help='Sets the start time (dd/mm/yyyy HH:MM:SS).The total duration is calculated as query_start - period in hours')
+    parser.add_argument('-wl', '--whitelist', required=False, dest='whitelist', default='', help='Sets whitelisted destination IP addresses. Entries are comma separated values')
     args = parser.parse_args()
 
     try:
@@ -54,6 +58,8 @@ def main():
                            period=args.period,
                            es_timeout=args.estimeout,
                            kibana_version=args.kibana_version,
+                           query_start= time.time() if args.query_start.strip() == '' else  time.mktime(datetime.strptime(args.query_start,'%d/%m/%Y %H:%M:%S').timetuple()),
+                           whitelist=[("",value) for value in args.whitelist.split(',')],
                            verbose=args.verbose)
 
     except Exception as e:
